@@ -159,73 +159,57 @@ function processText(item, output) {
   var text = item.getText();
   var indices = item.getTextAttributeIndices();
 
-  if (indices.length <= 1) {
-    // Assuming that a whole para fully italic is a quote
-    if(item.isBold()) {
-      output.push('<strong>' + text + '</strong>');
+  for (var i=0; i < indices.length; i ++) {
+    var partAtts = item.getAttributes(indices[i]);
+    var startPos = indices[i];
+    var endPos = i+1 < indices.length ? indices[i+1]: text.length;
+    var partText = text.substring(startPos, endPos);
+    
+    Logger.log(partText);
+    
+    
+    if (partAtts.LINK_URL) {
+      output.push('<a href="' + partAtts.LINK_URL + '">');
     }
-    else if(item.isItalic()) {
-      output.push('<blockquote>' + text + '</blockquote>');
+    if (partAtts.ITALIC) {
+      output.push('<i>');
     }
-    else if (text.trim().indexOf('http://') == 0) {
-      output.push('<a href="' + text + '" rel="nofollow">' + text + '</a>');
+    if (partAtts.BOLD) {
+      output.push('<strong>');
+    }
+    if (partAtts.UNDERLINE && !partAtts.LINK_URL) {
+      output.push('<u>');
+    }
+    
+    // If someone has written [xxx] and made this whole text some special font, like superscript
+    // then treat it as a reference and make it superscript.
+    // Unfortunately in Google Docs, there's no way to detect superscript
+    if (partText.indexOf('[')==0 && partText[partText.length-1] == ']') {
+      output.push('<sup>' + partText + '</sup>');
+    }
+    else if (partText.trim().indexOf('http://') == 0) {
+      output.push('<a href="' + partText + '" rel="nofollow">' + partText + '</a>');
     }
     else {
-      output.push(text);
+      output.push(partText);
     }
-  }
-  else {
-
-    for (var i=0; i < indices.length; i ++) {
-      var partAtts = item.getAttributes(indices[i]);
-      var startPos = indices[i];
-      var endPos = i+1 < indices.length ? indices[i+1]: text.length;
-      var partText = text.substring(startPos, endPos);
-
-      Logger.log(partText);
-      
-      if (partAtts.LINK_URL) {
-        output.push('<a href="' + partAtts.LINK_URL + '">');
-      }
-      if (partAtts.ITALIC) {
-        output.push('<i>');
-      }
-      if (partAtts.BOLD) {
-        output.push('<strong>');
-      }
-      if (partAtts.UNDERLINE && !partAtts.LINK_URL) {
-        output.push('<u>');
-      }
-
-      // If someone has written [xxx] and made this whole text some special font, like superscript
-      // then treat it as a reference and make it superscript.
-      // Unfortunately in Google Docs, there's no way to detect superscript
-      if (partText.indexOf('[')==0 && partText[partText.length-1] == ']') {
-        output.push('<sup>' + partText + '</sup>');
-      }
-      else if (partText.trim().indexOf('http://') == 0) {
-        output.push('<a href="' + partText + '" rel="nofollow">' + partText + '</a>');
-      }
-      else {
-        output.push(partText);
-      }
-
-      if (partAtts.UNDERLINE && !partAtts.LINK_URL) {
-        output.push('</u>');
-      }
-      if (partAtts.BOLD) {
-        output.push('</strong>');
-      }
-      if (partAtts.ITALIC) {
-        output.push('</i>');
-      }
-      if (partAtts.LINK_URL) {
-        output.push('</a>');
-      }
-
+    
+    if (partAtts.UNDERLINE && !partAtts.LINK_URL) {
+      output.push('</u>');
     }
+    if (partAtts.BOLD) {
+      output.push('</strong>');
+    }
+    if (partAtts.ITALIC) {
+      output.push('</i>');
+    }
+    if (partAtts.LINK_URL) {
+      output.push('</a>');
+    }
+    
   }
 }
+
 
 
 function processImage(item, images, output)
