@@ -183,14 +183,17 @@ function processText(item, output) {
       var partText = text.substring(startPos, endPos);
 
       Logger.log(partText);
-
+      
+      if (partAtts.LINK_URL) {
+        output.push('<a href="' + partAtts.LINK_URL + '">');
+      }
       if (partAtts.ITALIC) {
         output.push('<i>');
       }
       if (partAtts.BOLD) {
         output.push('<strong>');
       }
-      if (partAtts.UNDERLINE) {
+      if (partAtts.UNDERLINE && !partAtts.LINK_URL) {
         output.push('<u>');
       }
 
@@ -207,14 +210,17 @@ function processText(item, output) {
         output.push(partText);
       }
 
-      if (partAtts.ITALIC) {
-        output.push('</i>');
+      if (partAtts.UNDERLINE && !partAtts.LINK_URL) {
+        output.push('</u>');
       }
       if (partAtts.BOLD) {
         output.push('</strong>');
       }
-      if (partAtts.UNDERLINE) {
-        output.push('</u>');
+      if (partAtts.ITALIC) {
+        output.push('</i>');
+      }
+      if (partAtts.LINK_URL) {
+        output.push('</a>');
       }
 
     }
