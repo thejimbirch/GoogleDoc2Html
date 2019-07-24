@@ -111,7 +111,12 @@ function processItem(item, listCounters, images) {
       suffix = "</li>";
     }
 
-    if (item.isAtDocumentEnd() || (item.getNextSibling() && (item.getNextSibling().getType() != DocumentApp.ElementType.LIST_ITEM))) {
+    var isAtEnd = item.isAtDocumentEnd();
+    var nextSibling = item.getNextSibling();
+    var listItemType = DocumentApp.ElementType.LIST_ITEM;
+    var isNextAtEndOfList = (!nextSibling || (nextSibling && (nextSibling.getType() != listItemType)));
+    
+    if (isAtEnd || isNextAtEndOfList) {
       if (gt === DocumentApp.GlyphType.BULLET
           || gt === DocumentApp.GlyphType.HOLLOW_BULLET
           || gt === DocumentApp.GlyphType.SQUARE_BULLET) {
